@@ -9,6 +9,7 @@ class App extends Component {
     super(props, context);
     this.state = {
       tasks: [],
+      isDisplayForm: false,
     }
   }
 
@@ -21,30 +22,6 @@ class App extends Component {
     }
   }
 
-  generateData = () => {
-    var tasks = [
-      {
-        id: this.generateID(),
-        name: 'Hoc lap trinh',
-        status: true
-      },
-      {
-        id: this.generateID(),
-        name: 'Di boi',
-        status: false
-      },
-      {
-        id: this.generateID(),
-        name: 'Ngu',
-        status: true
-      }
-    ];
-    this.setState({
-      tasks: tasks
-    });
-    localStorage.setItem('tasks', JSON.stringify(tasks))
-  }
-
   s4() {
     return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
   }
@@ -52,8 +29,30 @@ class App extends Component {
     return this.s4() + this.s4();
   }
 
+  onToggleForm = () => {
+    this.setState({
+      isDisplayForm: !this.state.isDisplayForm
+    });
+  }
+
+  onCloseForm = () => {
+    this.setState({
+      isDisplayForm: false
+    })
+  }
+  onSubmit = (data) => {
+    var tasks = this.state.tasks;
+    data.id = this.generateID();
+    tasks.push(data);
+    this.setState({
+      tasks: tasks
+    });
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+  }
+
   render() {
-    var { tasks } = this.state; // viết cách khác var tasks = this.state.tasks
+    var elmTaskForm = this.state.isDisplayForm ? <TaskForm onCloseForm={this.onCloseForm}
+      onSubmit={this.onSubmit} /> : '';
     return (
       <div className="container">
         <div className="text-center">
@@ -61,17 +60,18 @@ class App extends Component {
           <hr />
         </div>
         <div className="row">
-          <TaskForm />
-          <div className="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-            <button type="button" className="btn btn-primary">
+          <div className={this.state.isDisplayForm ? 'col-xs-4 col-sm-4 col-md-4 col-lg-4' : ''}>
+            {elmTaskForm}
+          </div>
+          <div className={this.state.isDisplayForm ? 'col-xs-8 col-sm-8 col-md-8 col-lg-8' : 'col-xs-12 col-sm-12 col-md-12 col-lg-12'}>
+            <button type="button" className="btn btn-primary"
+              onClick={() => this.onToggleForm()}>
               <span className="fa fa-plus"></span>Thêm Công Việc
-                </button>
-            <button type="button" className="btn btn-danger" onClick={this.generateData}>Genarate data
                 </button>
             <Control />
             <div className="row">
               <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <TaskList tasks={tasks}/>
+                <TaskList tasks={this.state.tasks} />
               </div>
             </div>
           </div>
